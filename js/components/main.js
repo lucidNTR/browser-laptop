@@ -7,7 +7,6 @@ const ImmutableComponent = require('./immutableComponent')
 const Immutable = require('immutable')
 const electron = global.require('electron')
 const ipc = electron.ipcRenderer
-const systemPreferences = electron.remote.systemPreferences
 
 // Actions
 const windowActions = require('../actions/windowActions')
@@ -66,6 +65,7 @@ const {isIntermediateAboutPage, getBaseUrl, isNavigatableAboutPage} = require('.
 const siteSettings = require('../state/siteSettings')
 const urlParse = require('url').parse
 const debounce = require('../lib/debounce')
+const _ = require('underscore')
 const currentWindow = require('../../app/renderer/currentWindow')
 const emptyMap = new Immutable.Map()
 const emptyList = new Immutable.List()
@@ -184,7 +184,7 @@ class Main extends ImmutableComponent {
   }
 
   registerSwipeListener () {
-    // Navigates back/forward on macOS two-finger swipe
+    // Navigates back/forward on macOS three or two-finger swipe
     var trackingFingers = false
     var swipeGesture = false
     var isSwipeOnEdge = false
@@ -200,6 +200,7 @@ class Main extends ImmutableComponent {
         time = (new Date()).getTime() - startTime
       }
     })
+
     ipc.on(messages.DEBUG_REACT_PROFILE, (e, args) => {
       window.perf = require('react-addons-perf')
       if (!window.perf.isRunning()) {
@@ -226,6 +227,7 @@ class Main extends ImmutableComponent {
         }, true)
       }
     })
+
     ipc.on(messages.ENABLE_SWIPE_GESTURE, (e) => {
       swipeGesture = true
     })
@@ -256,6 +258,17 @@ class Main extends ImmutableComponent {
     ipc.on('scroll-touch-edge', function () {
       isSwipeOnEdge = true
     })
+
+    // function swipe (direction) {
+    //   if (direction === 'left') {
+    //     ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+    //   } else if (direction === 'right') {
+    //     ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+    //   }
+    // }
+    // let throttledSwipe = _.throttle(swipe, 500, {leading: true, trailing: false})
+    // currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
+
     ipc.on(messages.LEAVE_FULL_SCREEN, this.exitFullScreen.bind(this))
   }
 
