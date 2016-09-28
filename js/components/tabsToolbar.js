@@ -13,9 +13,10 @@ const windowStore = require('../stores/windowStore')
 class TabsToolbarButtons extends ImmutableComponent {
   render () {
     return <div className='tabsToolbarButtons'>
-      <Button iconClass='fa-bars'
+      <Button
+        iconClass='fa-bars'
         l10nId='menuButton'
-        className='navbutton menuButton'
+        className='navbutton menuButton hidden'
         onClick={this.props.onMenu} />
     </div>
   }
