@@ -596,73 +596,6 @@ function getEditableItems (selection, editFlags) {
   return items
 }
 
-function hamburgerTemplateInit (location, e) {
-  const template = [
-    CommonMenu.newTabMenuItem(),
-    CommonMenu.newPrivateTabMenuItem(),
-    CommonMenu.newPartitionedTabMenuItem(),
-    CommonMenu.newWindowMenuItem(),
-    CommonMenu.separatorMenuItem,
-    {
-      l10nLabelId: 'zoom',
-      type: 'multi',
-      submenu: [{
-        label: '-',
-        click: () => {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_ZOOM_OUT)
-        }
-      }, {
-        labelDataBind: 'zoomLevel',
-        dataBindParam: location,
-        click: () => {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_ZOOM_RESET)
-        }
-      }, {
-        label: '+',
-        click: () => {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_ZOOM_IN)
-        }
-      }]
-    },
-    CommonMenu.separatorMenuItem,
-    {
-      label: locale.translation('bookmarks'),
-      submenu: [
-        CommonMenu.bookmarksManagerMenuItem(),
-        CommonMenu.bookmarksToolbarMenuItem(),
-        CommonMenu.separatorMenuItem,
-        CommonMenu.importBrowserDataMenuItem()
-      ]
-    }, {
-      label: locale.translation('bravery'),
-      submenu: [
-        CommonMenu.braveryGlobalMenuItem(),
-        CommonMenu.braverySiteMenuItem(),
-        CommonMenu.braveryPaymentsMenuItem()
-      ]
-    },
-    CommonMenu.downloadsMenuItem(),
-    CommonMenu.findOnPageMenuItem(),
-    CommonMenu.printMenuItem(),
-    CommonMenu.separatorMenuItem,
-    CommonMenu.preferencesMenuItem(),
-    CommonMenu.separatorMenuItem,
-    {
-      label: locale.translation('help'),
-      submenu: [
-        CommonMenu.aboutBraveMenuItem(),
-        CommonMenu.separatorMenuItem,
-        CommonMenu.checkForUpdateMenuItem(),
-        CommonMenu.separatorMenuItem,
-        CommonMenu.reportAnIssueMenuItem(),
-        CommonMenu.submitFeedbackMenuItem()
-      ]
-    },
-    CommonMenu.quitMenuItem()
-  ]
-  return template
-}
-
 const openInNewTabMenuItem = (location, isPrivate, partitionNumber, parentFrameKey) => {
   let openInForeground = getSetting(settings.SWITCH_TO_NEW_TABS) === true
   return {
@@ -1023,16 +956,6 @@ function mainTemplateInit (nodeProps, frame) {
   return template
 }
 
-function onHamburgerMenu (location, e) {
-  const menuTemplate = hamburgerTemplateInit(location, e)
-  const rect = e.target.getBoundingClientRect()
-  windowActions.setContextMenuDetail(Immutable.fromJS({
-    right: 0,
-    top: rect.bottom + 2,
-    template: menuTemplate
-  }))
-}
-
 function onMainContextMenu (nodeProps, frame, contextMenuType) {
   if (contextMenuType === 'bookmark' || contextMenuType === 'bookmark-folder') {
     const activeFrame = Immutable.fromJS({ location: '', title: '', partitionNumber: frame.get('partitionNumber') })
@@ -1267,7 +1190,6 @@ function onForwardButtonHistoryMenu (activeFrame, history, rect) {
 }
 
 module.exports = {
-  onHamburgerMenu,
   onMainContextMenu,
   onTabContextMenu,
   onNewTabContextMenu,

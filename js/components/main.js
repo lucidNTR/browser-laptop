@@ -92,7 +92,6 @@ class Main extends ImmutableComponent {
     this.onHideNoScript = this.onHideNoScript.bind(this)
     this.onHideReleaseNotes = this.onHideReleaseNotes.bind(this)
     this.onBraveMenu = this.onBraveMenu.bind(this)
-    this.onHamburgerMenu = this.onHamburgerMenu.bind(this)
     this.onTabContextMenu = this.onTabContextMenu.bind(this)
     this.onFind = this.onFind.bind(this)
     this.onFindHide = this.onFindHide.bind(this)
@@ -585,11 +584,6 @@ class Main extends ImmutableComponent {
     }
   }
 
-  onHamburgerMenu (e) {
-    const activeFrame = FrameStateUtil.getActiveFrame(this.props.windowState)
-    contextMenus.onHamburgerMenu(activeFrame && activeFrame.get('location') || '', e)
-  }
-
   onHideSiteInfo () {
     windowActions.setSiteInfoVisible(false)
   }
@@ -1069,7 +1063,6 @@ class Main extends ImmutableComponent {
           sites={this.props.appState.get('sites')}
           key='tab-bar'
           activeFrameKey={activeFrame && activeFrame.get('key') || undefined}
-          onMenu={this.onHamburgerMenu}
         />
 
         {
