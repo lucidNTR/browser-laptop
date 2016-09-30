@@ -5,20 +5,13 @@
 const React = require('react')
 const ImmutableComponent = require('./immutableComponent')
 const Tabs = require('./tabs')
-const Button = require('./button')
 const PinnedTabs = require('./pinnedTabs')
 const contextMenus = require('../contextMenus')
 const windowStore = require('../stores/windowStore')
 
 class TabsToolbarButtons extends ImmutableComponent {
   render () {
-    return <div className='tabsToolbarButtons'>
-      <Button
-        iconClass='fa-bars'
-        l10nId='menuButton'
-        className='navbutton menuButton hidden'
-        onClick={this.props.onMenu} />
-    </div>
+    return <div className={'tabsToolbarButtons'} />
   }
 }
 
