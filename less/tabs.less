@@ -119,7 +119,7 @@
       box-shadow: inset 1px 1px 2px 0px white;
       box-shadow: 0px -1px 4px 0px rgba(51, 51, 51, 0.12);
       border: 1px solid #bbb;
-      border-bottom: 1px;
+      border-bottom: 0;
   }
 
   &.private {
@@ -188,15 +188,6 @@
 
   &:not(.isPinned) {
     flex: 1;
-    &:first-child {
-      padding-left: 6px;
-    }
-  }
-
-  &.isPinned {
-    &:last-child {
-      padding-right: 6px;
-    }
   }
 
   &.draggingOverLeft {
@@ -346,6 +337,25 @@
 
 .pinnedTabs {
   margin-left: 9px;
+  margin-right: 8px;
+}
+
+
+@keyframes rotate {
+  100% {
+    transform:rotate(360deg);
+  }
+}
+
+.tabIcon.loading:after {
+  content: "\F111";
+  color: transparent;
+  animation: rotate 1s linear infinite;
+  position: absolute;
+  top: 15px;
+  right: 16px;
+  text-shadow: 10px 5px 1px #ff5000;
+  font-size: 5px;
 }
 
 .segmentedControl {
