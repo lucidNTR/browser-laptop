@@ -159,9 +159,15 @@ class Tab extends ImmutableComponent {
     }
 
     const icon = this.props.tab.get('icon')
-    if (!this.loading && icon) {
+    if (icon) {
       iconStyle = Object.assign(iconStyle, {
         backgroundImage: `url(${icon})`,
+        backgroundSize: iconSize,
+        height: iconSize
+      })
+    } else {
+      iconStyle = Object.assign(iconStyle, {
+        className: 'fa fa-file',
         backgroundSize: iconSize,
         height: iconSize
       })
@@ -221,7 +227,7 @@ class Tab extends ImmutableComponent {
         }
         <div className={cx({
           tabIcon: true,
-          'fa fa-circle-o-notch fa-spin': this.loading
+          'loading fa': this.loading
         })}
           style={iconStyle} />
         {playIcon}
