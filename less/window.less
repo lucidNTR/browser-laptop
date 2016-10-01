@@ -100,20 +100,41 @@ html,
   .webviewContainer {
     height: 100%;
     width: 100%;
-    &.isPreview {
-      opacity: 0.5;
-      animation: tabFadeIn 0.75s ease-in-out;
-      animation-fill-mode: forwards;
+
+    &.isPreview:before {
+      content: ' ';
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.69);;
+      z-index: @zindexWindowIsPreview - 1;
+    }
+
+    &.isPreview webview {
+      position: absolute;
+      transform-origin: center;
+      transform: scale(0.75);
+      border: 5px black;
+      box-shadow: 1px 1px 20px black;
+      z-index: @zindexWindowIsPreview + 1;
     }
   }
 
   &:not(.isActive) {
     z-index: @zindexWindowNotActive;
+    // opacity: 0;
+
+    // TODO: only first animate. fade out too, animate grow on tab select
+    // transition: opacity 0.25s ease-in;
 
     &.isPreview {
-      background: gray;
       z-index: @zindexWindowIsPreview;
+      opacity: 1;
+      // transition: opacity 0.25s ease-out;
     }
+
 
     // Webviews can cause flickers w/ Chrome  v49 if left visible
     // in the background.  This also has a major benefit for background
