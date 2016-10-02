@@ -112,6 +112,7 @@ class Tabs extends ImmutableComponent {
               <Tab ref={(node) => this.tabRefs.push(node)}
                 draggingOverData={this.props.draggingOverData}
                 tab={tab}
+                minTabs={this.props.minTabs}
                 key={'tab-' + tab.get('frameKey')}
                 paintTabs={this.props.paintTabs}
                 previewTabs={this.props.previewTabs}
