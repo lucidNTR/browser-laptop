@@ -25,6 +25,7 @@ class Tab extends ImmutableComponent {
   get frame () {
     return windowStore.getFrame(this.props.tab.get('frameKey'))
   }
+
   get isPinned () {
     return !!this.props.tab.get('pinnedLocation')
   }
@@ -159,9 +160,15 @@ class Tab extends ImmutableComponent {
     }
 
     const icon = this.props.tab.get('icon')
-    if (!this.loading && icon) {
+    if (icon) {
       iconStyle = Object.assign(iconStyle, {
         backgroundImage: `url(${icon})`,
+        backgroundSize: iconSize,
+        height: iconSize
+      })
+    } else {
+      iconStyle = Object.assign(iconStyle, {
+        className: 'fa fa-file',
         backgroundSize: iconSize,
         height: iconSize
       })
@@ -187,6 +194,7 @@ class Tab extends ImmutableComponent {
         draggingOverRight: this.isDraggingOverRight,
         isDragging: this.isDragging,
         isPinned: this.isPinned,
+        minTab: (this.isPinned || this.props.minTabs),
         partOfFullPageSet: this.props.partOfFullPageSet
       })}
       onMouseEnter={this.props.previewTabs ? this.onMouseEnter : null}
@@ -194,6 +202,7 @@ class Tab extends ImmutableComponent {
       <div className={cx({
         tab: true,
         isPinned: this.isPinned,
+        minTab: (this.isPinned || this.props.minTabs),
         active: this.props.isActive,
         private: this.props.tab.get('isPrivate')
       })}
@@ -221,7 +230,7 @@ class Tab extends ImmutableComponent {
         }
         <div className={cx({
           tabIcon: true,
-          'fa fa-circle-o-notch fa-spin': this.loading
+          'loading fa': this.loading
         })}
           style={iconStyle} />
         {playIcon}

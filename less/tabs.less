@@ -30,8 +30,8 @@
     }
   }
   .browserButton {
-    height: 26px;
-    line-height: 22px;
+    height: 37px;
+    line-height: 32px;
   }
 
   &.isPreview {
@@ -48,7 +48,8 @@
   box-sizing: border-box;
   color: #3B3B3B;
   display: flex;
-  height: 22px;
+  height: 31px;
+  min-width: 32px;
   margin: 0;
   transition: transform 200ms ease;
   left: 0;
@@ -60,6 +61,11 @@
   border: 1px solid @chromeTertiary;
   border-bottom: 1px;
 
+  .fa {
+    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.85);
+    opacity: 0.9;
+  }
+
   .tabTitle {
     -webkit-user-select: none;
     box-sizing: border-box;
@@ -67,12 +73,17 @@
     font-size: 11.5px;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 16px;
+    line-height: 32px;
     white-space: nowrap;
     vertical-align: middle;
     width: calc(~'100% - 40px');
-    height: 15px;
+    height: 31px;
   }
+
+  &.minTab .tabTitle {
+    display: none;
+  }
+
   .tabIcon {
     background-position: center;
     background-repeat: no-repeat;
@@ -93,11 +104,40 @@
     vertical-align: middle;
   }
 
-
   .audioPlaybackActive {
     margin: auto 4px auto 0;
     color: @audioColor;
     width: 20px;
+  }
+
+  &.minTab {
+    .privateIcon {
+      opacity: 0.6;
+      text-shadow: 0 0 1px rgb(0, 0, 0);
+      background-position: center;
+      background-repeat: no-repeat;
+      display: inline-block;
+      font-size: 11px;
+      left: 3px;
+      margin: 0;
+      bottom: 0;
+      position: absolute;
+      vertical-align: middle;
+      color: rgb(179, 179, 179);
+    }
+
+    .audioPlaybackActive {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      font-size: 11px;
+      &:hover {
+        font-size: 14px;
+        top: 0px;
+        left: 1px;
+        opacity: 1;
+      }
+    }
   }
 
   .thumbnail {
@@ -113,13 +153,11 @@
   }
 
   &.active {
-      background: linear-gradient(to bottom, white, @chromePrimary, );
-      height: 24px;
-      margin-top: -1px;
-      box-shadow: inset 1px 1px 2px 0px white;
-      box-shadow: 0px -1px 4px 0px rgba(51, 51, 51, 0.12);
-      border: 1px solid #bbb;
-      border-bottom: 1px;
+    background: linear-gradient(to bottom, white, @chromePrimary, );
+    box-shadow: inset 1px 1px 2px 0px white;
+    box-shadow: 0px -1px 3px 0px rgba(51, 51, 51, 0.1);
+    border: 1px solid #bbb;
+    border-bottom: 0;
   }
 
   &.private {
@@ -132,7 +170,7 @@
 
   &:hover {
     .closeTab {
-      opacity: 0.5;
+      opacity: 0.7;
     }
 
     .thumbnail {
@@ -171,6 +209,25 @@
     border-radius: 50%;
     z-index: @zindexTabs;
   }
+
+  &.minTab .closeTab {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    top: 1px;
+    right: 1px;
+    color: rgb(10, 10, 10);
+    text-shadow: 0px 0px 1px white;
+    position: absolute;
+    z-index: 1000;
+
+    &:hover {
+      font-size: 14px;
+      top: 0;
+      right: 0;
+      opacity: 1;
+    }
+  }
 }
 
 .tabArea {
@@ -180,23 +237,16 @@
   position: relative;
   vertical-align: top;
   overflow: hidden;
+  min-width: 32px;
+
   // There's a special case that tabs should span the full width
   // if there are a full set of them.
   &:not(.partOfFullPageSet) {
     max-width: 184px;
   }
 
-  &:not(.isPinned) {
+  &:not(.minTab) {
     flex: 1;
-    &:first-child {
-      padding-left: 6px;
-    }
-  }
-
-  &.isPinned {
-    &:last-child {
-      padding-right: 6px;
-    }
   }
 
   &.draggingOverLeft {
@@ -250,7 +300,7 @@
   padding-right: 2px;
   .browserButton {
     display: inline-block;
-    line-height: 21px;
+    line-height: 32px;
   }
 }
 
@@ -286,7 +336,7 @@
   box-sizing: border-box;
   display: inline-block;
   margin: auto 2.5px;
-  height: 6px;
+  height: 8px;
   width: 36px;
   vertical-align: middle;
 
@@ -312,14 +362,15 @@
     display: none;
     color: #a0a0a0;
     font-size: 21px !important;
-    height: 20px;
-    line-height: 17px !important;
+    height: 32px;
+    line-height: 29px !important;
     text-align: center;
     vertical-align: top;
     margin-top: 2px;
     margin-left: -5px;
     margin-right: -5px;
     width: 30px;
+    min-width: 29px;
 
   &:not([disabled]) {
     display: block;
@@ -346,6 +397,28 @@
 
 .pinnedTabs {
   margin-left: 9px;
+  margin-right: 8px;
+}
+
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tabIcon.loading:after {
+  content: "\F111";
+  color: transparent;
+  animation: rotate 1s linear infinite;
+  position: absolute;
+  top: 15px;
+  left: 14px;
+  text-shadow: 10px 5px 1px #ff5000;
+  font-size: 5px;
 }
 
 .segmentedControl {
