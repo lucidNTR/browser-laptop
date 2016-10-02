@@ -79,6 +79,11 @@
     width: calc(~'100% - 40px');
     height: 31px;
   }
+
+  &.minTab .tabTitle {
+    display: none;
+  }
+
   .tabIcon {
     background-position: center;
     background-repeat: no-repeat;
@@ -90,33 +95,48 @@
   }
 
   .privateIcon {
-    opacity: 0.6;
-    text-shadow: 0 0 1px rgb(0, 0, 0);
     background-position: center;
     background-repeat: no-repeat;
     display: inline-block;
-    font-size: 11px;
-    left: 2px;
-    bottom: 0;
-    position: absolute;
+    font-size: 14px;
+    margin: auto 0px auto 9px;
+    position: relative;
     vertical-align: middle;
-    color: rgb(179, 179, 179);
   }
-
 
   .audioPlaybackActive {
     margin: auto 4px auto 0;
     color: @audioColor;
     width: 20px;
-    position: absolute;
-    top: 3px;
-    left: 5px;
-    font-size: 11px;
-    &:hover {
-      font-size: 14px;
-      top: 1px;
+  }
+
+  &.minTab {
+    .privateIcon {
+      opacity: 0.6;
+      text-shadow: 0 0 1px rgb(0, 0, 0);
+      background-position: center;
+      background-repeat: no-repeat;
+      display: inline-block;
+      font-size: 11px;
       left: 3px;
-      opacity: 1;
+      margin: 0;
+      bottom: 0;
+      position: absolute;
+      vertical-align: middle;
+      color: rgb(179, 179, 179);
+    }
+
+    .audioPlaybackActive {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      font-size: 11px;
+      &:hover {
+        font-size: 14px;
+        top: 0px;
+        left: 1px;
+        opacity: 1;
+      }
     }
   }
 
@@ -150,7 +170,7 @@
 
   &:hover {
     .closeTab {
-      opacity: 0.5;
+      opacity: 0.7;
     }
 
     .thumbnail {
@@ -189,17 +209,25 @@
     border-radius: 50%;
     z-index: @zindexTabs;
   }
-  // &.minTab .closeTab {
-  //   opacity: 0;
-  //   text-align: center;
-  //   font-size: 14px;
-  //   top: -2px;
-  //   right: -2px;
-  //   color: rgb(10, 10, 10);
-  //   text-shadow: 0px 0px 1px white;
-  //   position: absolute;
-  //   z-index: 1000;
-  // }
+
+  &.minTab .closeTab {
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    top: 1px;
+    right: 1px;
+    color: rgb(10, 10, 10);
+    text-shadow: 0px 0px 1px white;
+    position: absolute;
+    z-index: 1000;
+
+    &:hover {
+      font-size: 14px;
+      top: 0;
+      right: 0;
+      opacity: 1;
+    }
+  }
 }
 
 .tabArea {
@@ -209,13 +237,15 @@
   position: relative;
   vertical-align: top;
   overflow: hidden;
+  min-width: 32px;
+
   // There's a special case that tabs should span the full width
   // if there are a full set of them.
   &:not(.partOfFullPageSet) {
     max-width: 184px;
   }
 
-  &:not(.isPinned) {
+  &:not(.minTab) {
     flex: 1;
   }
 
@@ -306,7 +336,7 @@
   box-sizing: border-box;
   display: inline-block;
   margin: auto 2.5px;
-  height: 11px;
+  height: 8px;
   width: 36px;
   vertical-align: middle;
 
@@ -333,13 +363,14 @@
     color: #a0a0a0;
     font-size: 21px !important;
     height: 32px;
-    line-height: 17px !important;
+    line-height: 29px !important;
     text-align: center;
     vertical-align: top;
     margin-top: 2px;
     margin-left: -5px;
     margin-right: -5px;
     width: 30px;
+    min-width: 29px;
 
   &:not([disabled]) {
     display: block;
@@ -385,7 +416,7 @@
   animation: rotate 1s linear infinite;
   position: absolute;
   top: 15px;
-  right: 16px;
+  left: 14px;
   text-shadow: 10px 5px 1px #ff5000;
   font-size: 5px;
 }

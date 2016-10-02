@@ -25,6 +25,7 @@ class Tab extends ImmutableComponent {
   get frame () {
     return windowStore.getFrame(this.props.tab.get('frameKey'))
   }
+
   get isPinned () {
     return !!this.props.tab.get('pinnedLocation')
   }
@@ -193,6 +194,7 @@ class Tab extends ImmutableComponent {
         draggingOverRight: this.isDraggingOverRight,
         isDragging: this.isDragging,
         isPinned: this.isPinned,
+        minTab: (this.isPinned || this.props.minTabs),
         partOfFullPageSet: this.props.partOfFullPageSet
       })}
       onMouseEnter={this.props.previewTabs ? this.onMouseEnter : null}
@@ -200,6 +202,7 @@ class Tab extends ImmutableComponent {
       <div className={cx({
         tab: true,
         isPinned: this.isPinned,
+        minTab: (this.isPinned || this.props.minTabs),
         active: this.props.isActive,
         private: this.props.tab.get('isPrivate')
       })}

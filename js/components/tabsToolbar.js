@@ -12,7 +12,7 @@ const windowStore = require('../stores/windowStore')
 
 class TabsToolbarButtons extends ImmutableComponent {
   render () {
-    return <div className='tabsToolbarButtons'>
+    return <div className='tabsToolbarButtons' >
       <Button iconClass='fa-bars'
         l10nId='menuButton'
         className='navbutton menuButton'
@@ -39,6 +39,14 @@ class TabsToolbar extends ImmutableComponent {
     const unpinnedTabs = this.props.tabs.filter((tab) => !tab.get('pinnedLocation'))
     const currentTabs = unpinnedTabs
       .slice(startingFrameIndex, startingFrameIndex + this.props.tabsPerTabPage)
+
+    const sizePinnedTabs = pinnedTabs.size * 34
+    const sizeRest = sizePinnedTabs + 4 * 34
+
+    const minTabs = (currentTabs.size * 72) > (window.innerWidth - sizeRest)
+
+    // TODO: recheck on windowResize!
+
     return <div className='tabsToolbar'
       onContextMenu={this.onContextMenu}>
       {
@@ -54,6 +62,7 @@ class TabsToolbar extends ImmutableComponent {
         : null
       }
       <Tabs tabs={unpinnedTabs}
+        minTabs={minTabs}
         shouldAllowWindowDrag={this.props.shouldAllowWindowDrag}
         draggingOverData={this.props.draggingOverData}
         paintTabs={this.props.paintTabs}
