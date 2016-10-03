@@ -157,10 +157,12 @@ class WindowStore extends EventEmitter {
 
 const addToHistory = (frameProps) => {
   let history = frameProps.get('history') || Immutable.fromJS([])
+
   if (!aboutUrls.get(frameProps.get('location'))) {
     history = history.push(frameProps.get('location'))
   }
-  return history.slice(-10)
+
+  return history
 }
 
 const newFrame = (frameOpts, openInForeground, insertionIndex) => {

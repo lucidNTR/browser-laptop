@@ -823,10 +823,16 @@ class Frame extends ImmutableComponent {
           ipc.send(messages.CHECK_CERT_ERROR_ACCEPTED, parsedUrl.host, this.props.frameKey)
         }
       }
+      this.webview.history = this.getHistory()
+
+      let canGoBack = this.webview.history.currentIndex > 0
+      let canGoForward = this.webview.history.count - 1 > this.webview.history.currentIndex
+
       windowActions.updateBackForwardState(
         this.frame,
-        this.webview.canGoBack(),
-        this.webview.canGoForward())
+        canGoBack,
+        canGoForward)
+
       const hack = siteHacks[parsedUrl.hostname]
       if (hack && hack.pageLoadStartScript) {
         this.webview.executeJavaScript(hack.pageLoadStartScript)
@@ -994,10 +1000,6 @@ class Frame extends ImmutableComponent {
     this.webview.addEventListener('mousewheel', this.onMouseWheel.bind(this))
   }
 
-  goBack () {
-    this.webview.goBack()
-  }
-
   getHistoryEntry (sites, webContent, index) {
     const url = webContent.getURLAtIndex(index)
     const title = webContent.getTitleAtIndex(index)
@@ -1010,14 +1012,24 @@ class Frame extends ImmutableComponent {
     }
 
     if (url.startsWith('chrome-extension://')) {
-      // TODO: return brave lion (or better: get icon from extension if possible as data URI)
+      // entry.location = sites.find(function (element) { return element.get('location') === url })
+
+      // TODO: get icon from extension if possible as data URI
+      entry.icon = 'https://github.com/encharm/Font-Awesome-SVG-PNG/blob/master/black/png/32/plus-square-o.png'
+
+      // history https://raw.githubusercontent.com/encharm/Font-Awesome-SVG-PNG/master/black/png/32/history.png
+      // favs https://github.com/encharm/Font-Awesome-SVG-PNG/blob/master/black/png/32/heart.png
     } else {
       if (sites) {
         const site = sites.find(function (element) { return element.get('location') === url })
-        if (site) { entry.icon = site.get('favicon') }
+        if (site) {
+          entry.icon = site.get('favicon')
+        }
       }
 
-      if (!entry.icon) { entry.icon = UrlUtil.getDefaultFaviconUrl(url) }
+      if (!entry.icon) {
+        entry.icon = UrlUtil.getDefaultFaviconUrl(url)
+      }
     }
 
     return entry
@@ -1031,18 +1043,41 @@ class Frame extends ImmutableComponent {
     let history = {
       count: historyCount,
       currentIndex: webContent.getCurrentEntryIndex(),
+
+      allCount: historyCount,
+      allCurrentIndex: webContent.getCurrentEntryIndex(),
+
       entries: []
     }
 
+    let entry = {}
+
     for (let index = 0; index < historyCount; index++) {
-      history.entries.push(this.getHistoryEntry(sites, webContent, index))
+      let parsedURL = urlParse(this.getHistoryEntry(sites, webContent, index).url)
+      entry = this.getHistoryEntry(sites, webContent, index)
+
+      if (!aboutUrls.includes(parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname)) {
+        entry.ignore = true
+      } else {
+        history.count = history.count - 1
+        if (history.currentIndex >= index) {
+          history.currentIndex = history.currentIndex - 1
+        }
+      }
+
+      history.entries.push(entry)
     }
 
     return history
   }
 
   goToIndex (index) {
+    this.webview.history
     this.webview.goToIndex(index)
+  }
+
+  goBack () {
+    this.webview.goBack()
   }
 
   goForward () {
