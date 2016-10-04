@@ -61,7 +61,7 @@
   border: 1px solid @chromeTertiary;
   border-bottom: 1px;
 
-  .fa {
+  &.minTab .fa {
     text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.85);
     opacity: 0.9;
   }
@@ -415,10 +415,12 @@
   color: transparent;
   animation: rotate 1s linear infinite;
   position: absolute;
-  top: 15px;
-  left: 14px;
-  text-shadow: 10px 5px 1px #ff5000;
+  top: 14px;
+  opacity: 1;
+  left: 12px;
+  text-shadow: 11px 0px 2px @braveOrange;
   font-size: 5px;
+  font-size: 6px;
 }
 
 .segmentedControl {
