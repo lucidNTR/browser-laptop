@@ -161,6 +161,11 @@ class Tab extends ImmutableComponent {
 
     const icon = this.props.tab.get('icon')
     if (icon) {
+    // TODO: JSON.stringify()
+    // TODO: iconURL
+    // TODO: const age = 1 // in days
+    // TODO: cache cleanup & refresh & reuse cache per domain image & handle dynamic favicons
+
       iconStyle = Object.assign(iconStyle, {
         backgroundImage: `url(${icon})`,
         backgroundSize: iconSize,

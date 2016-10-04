@@ -123,7 +123,7 @@ module.exports.cleanPerWindowData = (perWindowData, isShutdown) => {
       frame.unloaded = true
     }
     frame.key = newKey
-    // Full history is not saved yet
+    // TODO: Full history is not saved yet
     frame.canGoBack = false
     frame.canGoForward = false
 
