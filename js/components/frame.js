@@ -64,9 +64,13 @@ class Frame extends ImmutableComponent {
   get frameBraverySettings () {
     const frameSiteSettings =
       siteSettings.getSiteSettingsForURL(this.props.allSiteSettings, this.props.location)
-    return Immutable.fromJS(siteSettings.activeSettings(frameSiteSettings,
-                                                        appStoreRenderer.state,
-                                                        appConfig))
+    return Immutable.fromJS(
+      siteSettings.activeSettings(
+        frameSiteSettings,
+        appStoreRenderer.state,
+        appConfig
+      )
+    )
   }
 
   isAboutPage () {
@@ -1147,7 +1151,7 @@ class Frame extends ImmutableComponent {
         ? <FullScreenWarning location={this.props.location} />
         : null
       }
-      <div className='frameTitle'>{'Frame Title'}</div>
+      <div className='frameTitle'>{this.props.title}</div>
       <div ref={(node) => { this.webviewContainer = node }}
         className={cx({
           webviewContainer: true,
