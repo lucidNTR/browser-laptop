@@ -1149,6 +1149,7 @@ class Frame extends ImmutableComponent {
         ? <FullScreenWarning location={this.props.location} />
         : null
       }
+      <div className='frameTitle'>{'Frame Title'}</div>
       <div ref={(node) => { this.webviewContainer = node }}
         className={cx({
           webviewContainer: true,
