@@ -5,9 +5,12 @@
 module.exports.getBase64FromImageUrl = (url) => {
   return new Promise((resolve, reject) => {
     const img = new window.Image()
+    img.setAttribute('crossOrigin', 'anonymous')
+
     img.onerror = function () {
       reject()
     }
+
     img.onload = function () {
       const canvas = document.createElement('canvas')
       canvas.width = this.naturalWidth
@@ -16,6 +19,7 @@ module.exports.getBase64FromImageUrl = (url) => {
         .drawImage(this, 0, 0)
       resolve(canvas.toDataURL('image/png'))
     }
+
     img.src = url
   })
 }
