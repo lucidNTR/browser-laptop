@@ -755,7 +755,8 @@ class Main extends ImmutableComponent {
 
   onToggleBookmark () {
     // trigger the AddEditBookmark modal; saving/deleting takes place there
-    const siteDetail = siteUtil.getDetailFromFrame(this.activeFrame, siteTags.BOOKMARK)
+    const activeFrame = FrameStateUtil.getActiveFrame(this.props.windowState)
+    const siteDetail = siteUtil.getDetailFromFrame(activeFrame, siteTags.BOOKMARK)
     windowActions.setBookmarkDetail(siteDetail, siteDetail)
   }
 
@@ -779,11 +780,11 @@ class Main extends ImmutableComponent {
   }
 
   get bookmarked () {
-    return this.props.activeFrameKey !== undefined &&
-      siteUtil.isSiteBookmarked(this.props.sites, Immutable.fromJS({
-        location: this.props.location,
-        partitionNumber: this.props.partitionNumber,
-        title: this.props.title
+    return this.activeFrameKey !== undefined &&
+      siteUtil.isSiteBookmarked(this.sites, Immutable.fromJS({
+        location: this.location,
+        partitionNumber: this.partitionNumber,
+        title: this.title
       }))
   }
 
@@ -856,7 +857,14 @@ class Main extends ImmutableComponent {
     const braverySettings = siteSettings.activeSettings(activeSiteSettings, this.props.appState, appConfig)
     const loginRequiredDetail = activeFrame ? basicAuthState.getLoginRequiredDetail(this.props.appState, activeFrame.get('tabId')) : null
     const customTitlebar = this.customTitlebar
-    const location = activeFrame && activeFrame.get('location') || ''
+
+    this.location = activeFrame && activeFrame.get('location') || ''
+    this.loading = activeFrame && activeFrame.get('loading')
+    this.activeFrameKey = activeFrame && activeFrame.get('key') || undefined
+    this.sites = this.props.appState.get('sites')
+    this.partitionNumber = activeFrame && activeFrame.get('partitionNumber') || 0
+    this.title = activeFrame && activeFrame.get('title') || ''
+
     const shouldAllowWindowDrag = !this.props.windowState.get('contextMenuDetail') &&
       !this.props.windowState.get('bookmarkDetail') &&
       !siteInfoIsVisible &&
@@ -959,19 +967,19 @@ class Main extends ImmutableComponent {
                 ref={(node) => { this.navBar = node }}
                 navbar={activeFrame && activeFrame.get('navbar')}
                 frames={this.props.windowState.get('frames')}
-                sites={this.props.appState.get('sites')}
-                activeFrameKey={activeFrame && activeFrame.get('key') || undefined}
-                location={location}
-                title={activeFrame && activeFrame.get('title') || ''}
+                sites={this.sites}
+                activeFrameKey={this.activeFrameKey}
+                location={this.location}
+                title={this.title}
                 scriptsBlocked={activeFrame && activeFrame.getIn(['noScript', 'blocked'])}
-                partitionNumber={activeFrame && activeFrame.get('partitionNumber') || 0}
+                partitionNumber={this.partitionNumber}
                 history={activeFrame && activeFrame.get('history') || emptyList}
                 suggestionIndex={activeFrame && activeFrame.getIn(['navbar', 'urlbar', 'suggestions', 'selectedIndex']) || 0}
                 isSecure={activeFrame && activeFrame.getIn(['security', 'isSecure'])}
                 locationValueSuffix={activeFrame && activeFrame.getIn(['navbar', 'urlbar', 'suggestions', 'urlSuffix']) || ''}
                 startLoadTime={activeFrame && activeFrame.get('startLoadTime') || undefined}
                 endLoadTime={activeFrame && activeFrame.get('endLoadTime') || undefined}
-                loading={activeFrame && activeFrame.get('loading')}
+                loading={this.loading}
                 mouseInTitlebar={this.props.windowState.getIn(['ui', 'mouseInTitlebar'])}
                 searchDetail={this.props.windowState.get('searchDetail')}
                 enableNoScript={this.enableNoScript(activeSiteSettings)}
@@ -1092,7 +1100,7 @@ class Main extends ImmutableComponent {
             showFavicon={showFavicon}
             showOnlyFavicon={showOnlyFavicon}
             shouldAllowWindowDrag={shouldAllowWindowDrag && !isWindows}
-            activeFrameKey={activeFrame && activeFrame.get('key') || undefined}
+            activeFrameKey={this.activeFrameKey}
             windowWidth={window.innerWidth}
             contextMenuDetail={this.props.windowState.get('contextMenuDetail')}
             sites={this.props.appState.get('sites')} />
