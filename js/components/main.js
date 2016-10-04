@@ -67,12 +67,16 @@ const urlParse = require('url').parse
 const debounce = require('../lib/debounce')
 const _ = require('underscore')
 const currentWindow = require('../../app/renderer/currentWindow')
+const siteUtil = require('../state/siteUtil')
 const emptyMap = new Immutable.Map()
 const emptyList = new Immutable.List()
 
 class Main extends ImmutableComponent {
   constructor () {
     super()
+    this.onToggleBookmark = this.onToggleBookmark.bind(this)
+    this.onStop = this.onStop.bind(this)
+    this.onReload = this.onReload.bind(this)
     this.onCloseFrame = this.onCloseFrame.bind(this)
     this.onBack = this.onBack.bind(this)
     this.onForward = this.onForward.bind(this)
@@ -310,6 +314,9 @@ class Main extends ImmutableComponent {
     this.registerSwipeListener()
     this.registerWindowLevelShortcuts()
     this.registerCustomTitlebarHandlers()
+
+    ipc.on(messages.SHORTCUT_ACTIVE_FRAME_BOOKMARK, () => this.onToggleBookmark())
+    ipc.on(messages.SHORTCUT_ACTIVE_FRAME_REMOVE_BOOKMARK, () => this.onToggleBookmark())
 
     ipc.on(messages.SHORTCUT_NEW_FRAME, (event, url, options = {}) => {
       if (options.singleFrame) {
@@ -751,6 +758,40 @@ class Main extends ImmutableComponent {
     return parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:' && activeRequestedLocation !== 'about:safebrowsing'
   }
 
+  onToggleBookmark () {
+    // trigger the AddEditBookmark modal; saving/deleting takes place there
+    const siteDetail = siteUtil.getDetailFromFrame(this.activeFrame, siteTags.BOOKMARK)
+    windowActions.setBookmarkDetail(siteDetail, siteDetail)
+  }
+
+  onReload (e) {
+    if (eventUtil.isForSecondaryAction(e)) {
+      ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_CLONE, {}, { openInForeground: !!e.shiftKey })
+    } else {
+      ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_RELOAD)
+    }
+  }
+
+  onHome () {
+    getSetting(settings.HOMEPAGE).split('|')
+      .forEach((homepage, i) => {
+        ipc.emit(i === 0 ? messages.SHORTCUT_ACTIVE_FRAME_LOAD_URL : messages.SHORTCUT_NEW_FRAME, {}, homepage)
+      })
+  }
+
+  onStop () {
+    ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_STOP)
+  }
+
+  get bookmarked () {
+    return this.props.activeFrameKey !== undefined &&
+      siteUtil.isSiteBookmarked(this.props.sites, Immutable.fromJS({
+        location: this.props.location,
+        partitionNumber: this.props.partitionNumber,
+        title: this.props.title
+      }))
+  }
+
   get extensionButtons () {
     const enabledExtensions = extensionState.getEnabledExtensions(this.props.appState)
     const extensionBrowserActions = enabledExtensions
@@ -820,6 +861,7 @@ class Main extends ImmutableComponent {
     const braverySettings = siteSettings.activeSettings(activeSiteSettings, this.props.appState, appConfig)
     const loginRequiredDetail = activeFrame ? basicAuthState.getLoginRequiredDetail(this.props.appState, activeFrame.get('tabId')) : null
     const customTitlebar = this.customTitlebar
+    const location = activeFrame && activeFrame.get('location') || ''
     const shouldAllowWindowDrag = !this.props.windowState.get('contextMenuDetail') &&
       !this.props.windowState.get('bookmarkDetail') &&
       !siteInfoIsVisible &&
@@ -877,7 +919,7 @@ class Main extends ImmutableComponent {
               onDoubleClick={this.onDoubleClick}
               onDragOver={this.onDragOver}
               onDrop={this.onDrop}>
-              <div className='backforward'>
+              <div className='navButtons'>
                 <LongPressButton
                   l10nId='backButton'
                   className='back fa fa-angle-left'
@@ -892,6 +934,31 @@ class Main extends ImmutableComponent {
                   onClick={this.onForward}
                   onLongPress={this.onForwardLongPress}
                 />
+                {this.loading
+                    ? <Button iconClass='fa-times'
+                      l10nId='reloadButton'
+                      className='navbutton stop-button'
+                      onClick={this.onStop} />
+                    : <Button iconClass='fa-repeat'
+                      l10nId='reloadButton'
+                      className='navbutton reload-button'
+                      onClick={this.onReload} />}
+                <Button iconClass={this.bookmarked ? 'fa-star' : 'fa-star-o'}
+                  className={cx({
+                    navbutton: true,
+                    bookmarkButton: true,
+                    removeBookmarkButton: this.bookmarked
+                  })}
+                  l10nId={this.bookmarked ? 'removeBookmarkButton' : 'addBookmarkButton'}
+                  onClick={this.onToggleBookmark} />
+                {
+                  getSetting(settings.SHOW_HOME_BUTTON)
+                  ? <Button iconClass='fa-home'
+                    l10nId='homeButton'
+                    className='navbutton homeButton'
+                    onClick={this.onHome} />
+                  : null
+                }
               </div>
               <NavigationBar
                 ref={(node) => { this.navBar = node }}
@@ -899,7 +966,7 @@ class Main extends ImmutableComponent {
                 frames={this.props.windowState.get('frames')}
                 sites={this.props.appState.get('sites')}
                 activeFrameKey={activeFrame && activeFrame.get('key') || undefined}
-                location={activeFrame && activeFrame.get('location') || ''}
+                location={location}
                 title={activeFrame && activeFrame.get('title') || ''}
                 scriptsBlocked={activeFrame && activeFrame.getIn(['noScript', 'blocked'])}
                 partitionNumber={activeFrame && activeFrame.get('partitionNumber') || 0}
@@ -1079,6 +1146,7 @@ class Main extends ImmutableComponent {
           : null
         }
       </div>
+
       <div className='mainContainer'>
         <div className='tabContainer'
           ref={(node) => { this.tabContainer = node }}>

@@ -25,7 +25,7 @@
 
 // (macOS) We need to keep a padding left to avoid overlapping
 // with the window buttons to close/maximize/minimize the window.
-.platform--darwin .navigatorWrapper .backforward {
+.platform--darwin .navigatorWrapper .navButtons {
   margin-left: @navbarLeftMarginDarwin;
 
   // Since we want to keep the navigator centered, we need to calculate the
@@ -482,7 +482,7 @@
   display: flex;
 
   // Buttons on the left
-  .backforward {
+  .navButtons {
     display: flex;
 
     .back,
@@ -574,7 +574,7 @@
   /**
    * Left buttons
    */
-  .backforward {
+  .navButtons {
     display: flex;
     z-index: @zindexNavigationBar;
     transition: margin @transitionDuration ease-in-out;
@@ -585,10 +585,10 @@
       color: @buttonColor;
       border-radius: 4px;
       font-weight: 300;
-      opacity: 0.2;
+      opacity: 0.1;
 
       &:not([disabled]) {
-        opacity: 0.85;
+        opacity: 0.7;
       }
 
       &:not([disabled]):hover {
