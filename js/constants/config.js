@@ -33,7 +33,7 @@ module.exports = {
   },
   navigationBar: {
     defaultSearchSuggestions: false,
-    maxHistorySites: 10
+    maxHistorySites: 1000000
   },
   defaultOpenSearchPath: 'content/search/google.xml',
   vault: {
