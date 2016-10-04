@@ -188,21 +188,21 @@ class Main extends ImmutableComponent {
 
   registerSwipeListener () {
     // Navigates back/forward on macOS three or two-finger swipe
-    var trackingFingers = false
-    var swipeGesture = false
-    var isSwipeOnEdge = false
-    var deltaX = 0
-    var deltaY = 0
-    var startTime = 0
-    var time
-
-    this.mainWindow.addEventListener('wheel', (e) => {
-      if (trackingFingers) {
-        deltaX = deltaX + e.deltaX
-        deltaY = deltaY + e.deltaY
-        time = (new Date()).getTime() - startTime
-      }
-    })
+    // var trackingFingers = false
+    // var swipeGesture = false
+    // var isSwipeOnEdge = false
+    // var deltaX = 0
+    // var deltaY = 0
+    // var startTime = 0
+    // var time
+    //
+    // this.mainWindow.addEventListener('wheel', (e) => {
+    //   if (trackingFingers) {
+    //     deltaX = deltaX + e.deltaX
+    //     deltaY = deltaY + e.deltaY
+    //     time = (new Date()).getTime() - startTime
+    //   }
+    // })
 
     ipc.on(messages.DEBUG_REACT_PROFILE, (e, args) => {
       window.perf = require('react-addons-perf')
@@ -231,46 +231,46 @@ class Main extends ImmutableComponent {
       }
     })
 
-    ipc.on(messages.ENABLE_SWIPE_GESTURE, (e) => {
-      swipeGesture = true
-    })
-    ipc.on(messages.DISABLE_SWIPE_GESTURE, (e) => {
-      swipeGesture = false
-    })
-    ipc.on('scroll-touch-begin', function () {
-      if (swipeGesture &&
-        systemPreferences.isSwipeTrackingFromScrollEventsEnabled()) {
-        trackingFingers = true
-        isSwipeOnEdge = false
-        startTime = (new Date()).getTime()
-      }
-    })
-    ipc.on('scroll-touch-end', function () {
-      if (time > 50 && trackingFingers && Math.abs(deltaY) < 50 && isSwipeOnEdge) {
-        if (deltaX > 70) {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
-        } else if (deltaX < -70) {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
-        }
-      }
-      trackingFingers = false
-      deltaX = 0
-      deltaY = 0
-      startTime = 0
-    })
-    ipc.on('scroll-touch-edge', function () {
-      isSwipeOnEdge = true
-    })
-
-    // function swipe (direction) {
-    //   if (direction === 'left') {
-    //     ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
-    //   } else if (direction === 'right') {
-    //     ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+    // ipc.on(messages.ENABLE_SWIPE_GESTURE, (e) => {
+    //   swipeGesture = true
+    // })
+    // ipc.on(messages.DISABLE_SWIPE_GESTURE, (e) => {
+    //   swipeGesture = false
+    // })
+    // ipc.on('scroll-touch-begin', function () {
+    //   if (swipeGesture &&
+    //     systemPreferences.isSwipeTrackingFromScrollEventsEnabled()) {
+    //     trackingFingers = true
+    //     isSwipeOnEdge = false
+    //     startTime = (new Date()).getTime()
     //   }
-    // }
-    // let throttledSwipe = _.throttle(swipe, 500, {leading: true, trailing: false})
-    // currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
+    // })
+    // ipc.on('scroll-touch-end', function () {
+    //   if (time > 50 && trackingFingers && Math.abs(deltaY) < 50 && isSwipeOnEdge) {
+    //     if (deltaX > 70) {
+    //       ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+    //     } else if (deltaX < -70) {
+    //       ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+    //     }
+    //   }
+    //   trackingFingers = false
+    //   deltaX = 0
+    //   deltaY = 0
+    //   startTime = 0
+    // })
+    // ipc.on('scroll-touch-edge', function () {
+    //   isSwipeOnEdge = true
+    // })
+
+    function swipe (direction) {
+      if (direction === 'left') {
+        ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+      } else if (direction === 'right') {
+        ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+      }
+    }
+    let throttledSwipe = _.throttle(swipe, 500, {leading: true, trailing: false})
+    currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
 
     ipc.on(messages.LEAVE_FULL_SCREEN, this.exitFullScreen.bind(this))
   }

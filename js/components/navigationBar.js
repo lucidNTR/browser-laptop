@@ -10,10 +10,7 @@ const Button = require('./button')
 const UrlBar = require('./urlBar')
 const windowActions = require('../actions/windowActions')
 const settings = require('../constants/settings')
-const ipc = global.require('electron').ipcRenderer
 const {isSourceAboutUrl} = require('../lib/appUrlUtil')
-const siteUtil = require('../state/siteUtil')
-const eventUtil = require('../lib/eventUtil')
 const getSetting = require('../settings').getSetting
 const windowStore = require('../stores/windowStore')
 
