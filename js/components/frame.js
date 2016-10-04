@@ -741,10 +741,10 @@ class Frame extends ImmutableComponent {
           method = () => this.webview.stop()
           break
         case messages.GO_BACK:
-          method = () => this.webview.goBack()
+          method = () => this.goBack()
           break
         case messages.GO_FORWARD:
-          method = () => this.webview.goForward()
+          method = () => this.goForward()
           break
         case messages.SHOW_FLASH_NOTIFICATION:
           method = (origin) => this.showFlashNotification(origin, () => {
