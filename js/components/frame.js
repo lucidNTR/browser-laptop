@@ -1056,9 +1056,8 @@ class Frame extends ImmutableComponent {
       let parsedURL = urlParse(this.getHistoryEntry(sites, webContent, index).url)
       entry = this.getHistoryEntry(sites, webContent, index)
 
-      if (!aboutUrls.includes(parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname)) {
-        entry.ignore = true
-      } else {
+      if (aboutUrls.includes(parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname)) {
+        entry.internal = true
         history.count = history.count - 1
         if (history.currentIndex >= index) {
           history.currentIndex = history.currentIndex - 1
@@ -1072,7 +1071,6 @@ class Frame extends ImmutableComponent {
   }
 
   goToIndex (index) {
-    this.webview.history
     this.webview.goToIndex(index)
   }
 
