@@ -143,35 +143,59 @@ class Tab extends ImmutableComponent {
   }
 
   render () {
-    // Style based on theme-color
+    // setup style constants
     const iconSize = 16
     let iconStyle = {
       minWidth: iconSize,
       width: iconSize
     }
     const activeTabStyle = {}
-    const backgroundColor = this.props.paintTabs && (this.props.tab.get('themeColor') || this.props.tab.get('computedThemeColor'))
-    if (this.props.isActive && backgroundColor) {
+
+    // load the cache for the current domain
+      // TODO: JSON.stringify()
+      // TODO: iconURL
+      // TODO: const age = 1 // in days
+      // TODO: cache cleanup & refresh & reuse cache per domain image & handle dynamic favicons
+    const locationKey = 'styleCache_' + window.btoa(new window.URL(this.frame.get('location')).host)
+    const cacheData = window.localStorage.getItem(locationKey)
+
+    let cacheIcon
+    let cacheColor
+
+    if (cacheData) {
+      const parsed = JSON.parse(cacheData)
+      cacheIcon = parsed.cacheIcon
+      cacheColor = parsed.cacheColor
+    }
+
+    // setup the theme color
+    const backgroundColor =
+      this.props.paintTabs &&
+      (this.props.tab.get('themeColor') || this.props.tab.get('computedThemeColor'))
+
+    if (this.props.isActive && cacheColor) {
+      activeTabStyle.background = cacheColor
+      const textColor = getTextColorForBackground(cacheColor)
+      iconStyle.color = textColor
+      if (textColor) {
+        activeTabStyle.color = getTextColorForBackground(cacheColor)
+      }
+    } else if (this.props.isActive && backgroundColor) {
       activeTabStyle.background = backgroundColor
       const textColor = getTextColorForBackground(backgroundColor)
       iconStyle.color = textColor
       if (textColor) {
         activeTabStyle.color = getTextColorForBackground(backgroundColor)
       }
+      cacheColor = backgroundColor
     }
 
+    // Setup the icon
     const iconUrl = this.props.tab.get('icon')
-    const locationKey = 'iconCache_' + window.btoa(new window.URL(this.frame.get('location')).host)
-    const cacheIcon = window.localStorage.getItem(locationKey)
-
-    // TODO: JSON.stringify()
-    // TODO: iconURL
-    // TODO: const age = 1 // in days
-    // TODO: cache cleanup & refresh & reuse cache per domain image & handle dynamic favicons
 
     if (iconUrl && !cacheIcon) {
       getBase64FromImageUrl(iconUrl).then((data) => {
-        window.localStorage.setItem(locationKey, data)
+        window.localStorage.setItem(locationKey, JSON.stringify({ cacheIcon: data, cacheColor }))
       })
 
       iconStyle = Object.assign(iconStyle, {
@@ -193,6 +217,7 @@ class Tab extends ImmutableComponent {
       })
     }
 
+    // setup play state
     let playIcon = null
     if (this.props.tab.get('audioPlaybackActive') || this.props.tab.get('audioMuted')) {
       playIcon = <span className={cx({
