@@ -1107,24 +1107,25 @@ function onBackButtonHistoryMenu (activeFrame, history, rect) {
   const menuTemplate = []
 
   if (activeFrame && history && history.entries.length > 0) {
-    const stopIndex = Math.max(((history.currentIndex - config.navigationBar.maxHistorySites) - 1), -1)
-    for (let index = (history.currentIndex - 1); index > stopIndex; index--) {
-      const url = history.entries[index].url
-
-      menuTemplate.push({
-        label: history.entries[index].display,
-        icon: history.entries[index].icon,
-        click: (e, focusedWindow) => {
-          if (eventUtil.isForSecondaryAction(e)) {
-            windowActions.newFrame({
-              location: url,
-              partitionNumber: activeFrame.props.frame.get('partitionNumber')
-            }, !!e.shiftKey)
-          } else {
-            activeFrame.goToIndex(index)
+    const stopIndex = Math.max(((history.allCurrentIndex - config.navigationBar.maxHistorySites) - 1), -1)
+    for (let index = (history.allCurrentIndex - 1); index > stopIndex; index--) {
+      if (!history.entries[index].internal) {
+        const url = history.entries[index].url
+        menuTemplate.push({
+          label: history.entries[index].display,
+          icon: history.entries[index].icon,
+          click: (e, focusedWindow) => {
+            if (eventUtil.isForSecondaryAction(e)) {
+              windowActions.newFrame({
+                location: url,
+                partitionNumber: activeFrame.props.frame.get('partitionNumber')
+              }, !!e.shiftKey)
+            } else {
+              activeFrame.goToIndex(index)
+            }
           }
-        }
-      })
+        })
+      }
     }
 
     // Always display "Show History" link
@@ -1150,24 +1151,26 @@ function onForwardButtonHistoryMenu (activeFrame, history, rect) {
   const menuTemplate = []
 
   if (activeFrame && history && history.entries.length > 0) {
-    const stopIndex = Math.min(((history.currentIndex + config.navigationBar.maxHistorySites) + 1), history.entries.length)
-    for (let index = (history.currentIndex + 1); index < stopIndex; index++) {
-      const url = history.entries[index].url
+    const stopIndex = Math.min(((history.allCurrentIndex + config.navigationBar.maxHistorySites) + 1), history.entries.length)
+    for (let index = (history.allCurrentIndex + 1); index < stopIndex; index++) {
+      if (!history.entries[index].internal) {
+        const url = history.entries[index].url
 
-      menuTemplate.push({
-        label: history.entries[index].display,
-        icon: history.entries[index].icon,
-        click: (e, focusedWindow) => {
-          if (eventUtil.isForSecondaryAction(e)) {
-            windowActions.newFrame({
-              location: url,
-              partitionNumber: activeFrame.props.frame.get('partitionNumber')
-            }, !!e.shiftKey)
-          } else {
-            activeFrame.goToIndex(index)
+        menuTemplate.push({
+          label: history.entries[index].display,
+          icon: history.entries[index].icon,
+          click: (e, focusedWindow) => {
+            if (eventUtil.isForSecondaryAction(e)) {
+              windowActions.newFrame({
+                location: url,
+                partitionNumber: activeFrame.props.frame.get('partitionNumber')
+              }, !!e.shiftKey)
+            } else {
+              activeFrame.goToIndex(index)
+            }
           }
-        }
-      })
+        })
+      }
     }
 
     // Always display "Show History" link
