@@ -15,6 +15,7 @@ const {isIntermediateAboutPage} = require('../lib/appUrlUtil')
 const contextMenus = require('../contextMenus')
 const dnd = require('../dnd')
 const windowStore = require('../stores/windowStore')
+const {getBase64FromImageUrl} = require('../lib/imageUtil')
 
 class Tab extends ImmutableComponent {
   constructor () {
@@ -159,15 +160,28 @@ class Tab extends ImmutableComponent {
       }
     }
 
-    const icon = this.props.tab.get('icon')
-    if (icon) {
+    const iconUrl = this.props.tab.get('icon')
+    const locationKey = 'iconCache_' + window.btoa(new window.URL(this.frame.get('location')).host)
+    const cacheIcon = window.localStorage.getItem(locationKey)
+
     // TODO: JSON.stringify()
     // TODO: iconURL
     // TODO: const age = 1 // in days
     // TODO: cache cleanup & refresh & reuse cache per domain image & handle dynamic favicons
 
+    if (iconUrl && !cacheIcon) {
+      getBase64FromImageUrl(iconUrl).then((data) => {
+        window.localStorage.setItem(locationKey, data)
+      })
+
       iconStyle = Object.assign(iconStyle, {
-        backgroundImage: `url(${icon})`,
+        backgroundImage: `url(${iconUrl})`,
+        backgroundSize: iconSize,
+        height: iconSize
+      })
+    } else if (cacheIcon) {
+      iconStyle = Object.assign(iconStyle, {
+        backgroundImage: `url(${cacheIcon})`,
         backgroundSize: iconSize,
         height: iconSize
       })
