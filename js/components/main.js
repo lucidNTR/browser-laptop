@@ -68,6 +68,7 @@ const searchProviders = require('../data/searchProviders')
 const defaultBrowserState = require('../../app/common/state/defaultBrowserState')
 
 // Util
+const _ = require('underscore')
 const cx = require('../lib/classSet')
 const eventUtil = require('../lib/eventUtil')
 const {isIntermediateAboutPage, getBaseUrl, isNavigatableAboutPage} = require('../lib/appUrlUtil')
@@ -233,61 +234,82 @@ class Main extends ImmutableComponent {
 
   registerSwipeListener () {
     // Navigates back/forward on macOS two-finger swipe
-    var trackingFingers = false
-    var swipeGesture = false
-    var isSwipeOnLeftEdge = false
-    var isSwipeOnRightEdge = false
-    var deltaX = 0
-    var deltaY = 0
-    var startTime = 0
-    var time
+    let swipeGesture = false
 
-    this.mainWindow.addEventListener('wheel', (e) => {
-      if (trackingFingers) {
-        deltaX = deltaX + e.deltaX
-        deltaY = deltaY + e.deltaY
-        time = (new Date()).getTime() - startTime
-      }
-    }, { passive: true })
     ipc.on(messages.ENABLE_SWIPE_GESTURE, (e) => {
       swipeGesture = true
     })
+
     ipc.on(messages.DISABLE_SWIPE_GESTURE, (e) => {
       swipeGesture = false
     })
-    ipc.on('scroll-touch-begin', function () {
-      if (swipeGesture &&
-        systemPreferences.isSwipeTrackingFromScrollEventsEnabled()) {
-        trackingFingers = true
-        startTime = (new Date()).getTime()
-      }
-    })
-    ipc.on('scroll-touch-end', function () {
-      if (time > 50 && trackingFingers && Math.abs(deltaY) < 50) {
-        if (deltaX > 70 && isSwipeOnRightEdge) {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
-        } else if (deltaX < -70 && isSwipeOnLeftEdge) {
-          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+
+    // isSwipeTrackingFromScrollEventsEnabled is only true if "two finger scroll to swipe" is enabled
+    // the swipe gesture handler will only fire if the three finger swipe setting is on, so the complete off setting is also taken care of
+    if (systemPreferences.isSwipeTrackingFromScrollEventsEnabled()) {
+      let trackingFingers = false
+      let isSwipeOnLeftEdge = false
+      let isSwipeOnRightEdge = false
+      let deltaX = 0
+      let deltaY = 0
+      let startTime = 0
+      let time
+
+      this.mainWindow.addEventListener('wheel', (e) => {
+        if (trackingFingers) {
+          deltaX = deltaX + e.deltaX
+          deltaY = deltaY + e.deltaY
+          time = (new Date()).getTime() - startTime
         }
-      }
-      trackingFingers = false
-      deltaX = 0
-      deltaY = 0
-      startTime = 0
-    })
-    ipc.on('scroll-touch-edge', function () {
-      if (deltaX > 0 && !isSwipeOnRightEdge) {
-        isSwipeOnRightEdge = true
-        isSwipeOnLeftEdge = false
-        time = 0
+      }, { passive: true })
+
+      ipc.on('scroll-touch-begin', () => {
+        if (swipeGesture) {
+          trackingFingers = true
+          startTime = (new Date()).getTime()
+        }
+      })
+
+      ipc.on('scroll-touch-end', () => {
+        if (time > 50 && trackingFingers && Math.abs(deltaY) < 50) {
+          if (deltaX > 70 && isSwipeOnRightEdge) {
+            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+          } else if (deltaX < -70 && isSwipeOnLeftEdge) {
+            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+          }
+        }
+        trackingFingers = false
         deltaX = 0
-      } else if (deltaX < 0 && !isSwipeOnLeftEdge) {
-        isSwipeOnLeftEdge = true
-        isSwipeOnRightEdge = false
-        time = 0
-        deltaX = 0
-      }
-    })
+        deltaY = 0
+        startTime = 0
+      })
+
+      ipc.on('scroll-touch-edge', () => {
+        if (deltaX > 0 && !isSwipeOnRightEdge) {
+          isSwipeOnRightEdge = true
+          isSwipeOnLeftEdge = false
+          time = 0
+          deltaX = 0
+        } else if (deltaX < 0 && !isSwipeOnLeftEdge) {
+          isSwipeOnLeftEdge = true
+          isSwipeOnRightEdge = false
+          time = 0
+          deltaX = 0
+        }
+      })
+    } else {
+      const throttledSwipe = _.throttle(direction => {
+        if (swipeGesture) {
+          if (direction === 'left') {
+            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+          } else if (direction === 'right') {
+            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+          }
+        }
+      }, 500, {leading: true, trailing: false})
+
+      currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
+    }
   }
 
   loadSearchProviders () {
