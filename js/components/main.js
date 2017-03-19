@@ -249,32 +249,6 @@ class Main extends ImmutableComponent {
         time = (new Date()).getTime() - startTime
       }
     }, { passive: true })
-    ipc.on(messages.DEBUG_REACT_PROFILE, (e, args) => {
-      window.perf = require('react-addons-perf')
-      if (!window.perf.isRunning()) {
-        if (!window.isFirstProfiling) {
-          window.isFirstProfiling = true
-          console.info('See this blog post for more information on profiling: http://benchling.engineering/performance-engineering-with-react/')
-        }
-        currentWindow.openDevTools()
-        console.log('starting to profile...')
-        window.perf.start()
-      } else {
-        window.perf.stop()
-        console.log('profiling stopped. Wasted:')
-        window.perf.printWasted()
-      }
-    })
-    ipc.on(messages.OPEN_BRAVERY_PANEL, (e) => {
-      if (!this.braveShieldsDisabled) {
-        this.onBraveMenu()
-      } else {
-        windowActions.newFrame({
-          location: 'about:preferences#shields',
-          singleFrame: true
-        }, true)
-      }
-    })
     ipc.on(messages.ENABLE_SWIPE_GESTURE, (e) => {
       swipeGesture = true
     })
@@ -314,7 +288,6 @@ class Main extends ImmutableComponent {
         deltaX = 0
       }
     })
-    ipc.on(messages.LEAVE_FULL_SCREEN, this.exitFullScreen.bind(this))
   }
 
   loadSearchProviders () {
@@ -371,6 +344,36 @@ class Main extends ImmutableComponent {
     this.registerSwipeListener()
     this.registerWindowLevelShortcuts()
     this.registerCustomTitlebarHandlers()
+
+    ipc.on(messages.LEAVE_FULL_SCREEN, this.exitFullScreen.bind(this))
+
+    ipc.on(messages.DEBUG_REACT_PROFILE, (e, args) => {
+      window.perf = require('react-addons-perf')
+      if (!window.perf.isRunning()) {
+        if (!window.isFirstProfiling) {
+          window.isFirstProfiling = true
+          console.info('See this blog post for more information on profiling: http://benchling.engineering/performance-engineering-with-react/')
+        }
+        currentWindow.openDevTools()
+        console.log('starting to profile...')
+        window.perf.start()
+      } else {
+        window.perf.stop()
+        console.log('profiling stopped. Wasted:')
+        window.perf.printWasted()
+      }
+    })
+
+    ipc.on(messages.OPEN_BRAVERY_PANEL, (e) => {
+      if (!this.braveShieldsDisabled) {
+        this.onBraveMenu()
+      } else {
+        windowActions.newFrame({
+          location: 'about:preferences#shields',
+          singleFrame: true
+        }, true)
+      }
+    })
 
     ipc.on(messages.SHORTCUT_NEW_FRAME, (event, url, options = {}) => {
       if (options.singleFrame) {
