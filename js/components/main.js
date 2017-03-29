@@ -245,7 +245,7 @@ class Main extends ImmutableComponent {
     })
 
     // isSwipeTrackingFromScrollEventsEnabled is only true if "two finger scroll to swipe" is enabled
-    // the swipe gesture handler will only fire if the three finger swipe setting is on, so the complete off setting is also taken care of
+    // the swipe gesture handler will only fire if the three finger swipe setting is on, so the complete off setting and three and two finger together is also taken care of
     if (systemPreferences.isSwipeTrackingFromScrollEventsEnabled()) {
       let trackingFingers = false
       let isSwipeOnLeftEdge = false
@@ -297,19 +297,19 @@ class Main extends ImmutableComponent {
           deltaX = 0
         }
       })
-    } else {
-      const throttledSwipe = _.throttle(direction => {
-        if (swipeGesture) {
-          if (direction === 'left') {
-            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
-          } else if (direction === 'right') {
-            ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
-          }
-        }
-      }, 500, {leading: true, trailing: false})
-
-      currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
     }
+
+    const throttledSwipe = _.throttle(direction => {
+      if (swipeGesture) {
+        if (direction === 'left') {
+          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_BACK)
+        } else if (direction === 'right') {
+          ipc.emit(messages.SHORTCUT_ACTIVE_FRAME_FORWARD)
+        }
+      }
+    }, 500, {leading: true, trailing: false})
+
+    currentWindow.on('swipe', (e, direction) => { throttledSwipe(direction) })
   }
 
   loadSearchProviders () {
